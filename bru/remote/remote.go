@@ -25,11 +25,11 @@ func SendIntChan(name, address string) chan int {
 
 }
 
-func ReceiveStringChan(laddr string) chan string {
+func ReceiveStringChan(name, laddr string) chan string {
 	ch := make(chan string)
 
 	go func(ch chan string) {
-		receive(ch, laddr)
+		receive(ch, name, laddr)
 	}(ch)
 
 	return ch
@@ -65,9 +65,26 @@ func send (name , address, s string) {
 
 }
 
-func receive (ch chan string, laddr string) {
-	ln, _ := net.Listen("tcp", laddr)
+var receivers = make(map[string]bool)
+var chans = make(map[string]chan string)
 
+func receive (ch chan string, name, laddr string) {
+
+	if chans[laddr+name] == nil {
+
+		chans[laddr+name] = ch
+
+		if !receivers[laddr] {
+			receivers[laddr] = true
+			go listen(laddr)
+		}
+	} else {
+		fmt.Errorf("There is already a channel named [%v] running on [%v]", name, laddr)
+	}
+}
+
+func listen(laddr string) {
+	ln, _ := net.Listen("tcp", laddr)
 	for {
 		conn, _ := ln.Accept()
 		message, _ := bufio.NewReader(conn).ReadString('\n')
@@ -75,7 +92,7 @@ func receive (ch chan string, laddr string) {
 		m := new(Message)
 		json.Unmarshal([]byte(message), &m)
 
-		ch <- m.Cargo
+		chans[laddr+m.Name] <- m.Cargo
 		conn.Write([]byte("OK\n"))
 		conn.Close()
 	}

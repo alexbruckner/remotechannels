@@ -16,4 +16,12 @@ func main() {
 		time.Sleep(1 * time.Second)
 	}
 
+	var ch2 chan int = remote.SendIntChan("test2", "127.0.0.1:8080")
+
+	for i := 1; i <= 10; i++ {
+		fmt.Printf("SendIntChan2: %v\n", i)
+		ch2 <- i
+		time.Sleep(1 * time.Second)
+	}
+
 }
