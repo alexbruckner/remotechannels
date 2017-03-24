@@ -1,2 +1,3 @@
-named channels on same port
+error handling
+more channel types or generic channels
 bidirectional channels (ie sender + receiver combo)
