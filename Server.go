@@ -10,7 +10,7 @@ func main() {
 	var ch chan string = remote.ReceiveStringChan(":8080")
 	for {
 		s := <- ch
-		fmt.Printf("ReceiveStringChan: %v", s)
+		fmt.Printf("ReceiveStringChan: %v\n", s)
 	}
 }
 
